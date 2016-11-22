@@ -1,7 +1,8 @@
 const express = require('express');
 const app = express();
 const morgan = require('morgan');
-const routes = require('./router/wiki');
+const wiki = require('./router/wiki');
+const users = require('./router/users')
 const fs = require('fs');
 const nunjucks = require('nunjucks');
 const models = require('./models/index.js')
@@ -20,18 +21,19 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.use(express.static('public'));
-app.use('/', routes);
+app.use('/', wiki);
+app.use('/', users);
 
-app.get('/wiki', function(req, res) {
-  res.render('index');
-})
+app.get('/', function (req, res) {
+  res.redirect( '/wiki' );
+});
 
-app.use('/', function(err, req, res, next) {
-  res.send('ITS NOT WORKING !!!!!!!', err);
-})
+// app.use('/', function(err, req, res, next) {
+//   res.send('ITS NOT WORKING !!!!!!!', err);
+// })
 
-models.User.sync({force: true}).then(function () {
-  return models.Page.sync({force: true});
+models.User.sync().then(function () {
+  return models.Page.sync();
 }).then(function () {
   app.listen(3000, function () {
     console.log('Servers up, were good to go!');
